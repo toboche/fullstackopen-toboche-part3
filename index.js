@@ -55,7 +55,14 @@ app.post('/api/persons', (request, response) => {
     const number = request.body.number
 
     if(!request || !number){
-        return response.status(400).json({error: 'mising fields'})
+        return response.status(400).json({error: 'name or number missing'})
+    } 
+    
+    const isUnique = !persons.map(p=>p.name)
+        .includes(name)
+
+    if(!isUnique){
+        return response.status(400).json({error: "name not unique"})
     }
 
     const maxId = persons.length > 0
