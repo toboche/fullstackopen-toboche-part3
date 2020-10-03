@@ -2,7 +2,9 @@ const { response } = require('express')
 const express = require('express')
 const app = express()   
 const morgan = require('morgan')
+const cors = require('cors')
 
+app.use(cors())
 app.use(express.json())
 morgan.token('body', function(req, res, param) {
     return JSON.stringify(req.body);
@@ -69,6 +71,8 @@ app.delete('/api/persons/:id', (request, response) => {
 app.post('/api/persons', (request, response) => {
     const name = request.body.name
     const number = request.body.number
+    console.log('name', request.body.name)
+    console.log('number', request.body.number)
 
     if(!request || !number){
         return response.status(400).json({error: 'name or number missing'})
@@ -93,7 +97,7 @@ app.post('/api/persons', (request, response) => {
     }
     persons = persons.concat(newPerson)
 
-    response.json(persons)
+    response.json(newPerson)
 })
 
 const PORT = 3001
