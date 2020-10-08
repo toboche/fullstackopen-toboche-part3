@@ -97,6 +97,26 @@ app.post('/api/persons', (request, response, next) => {
     .catch(error => next(error))
 })
 
+app.put('/api/persons/:id', (request, response, next) => {
+    const id = request.params.id
+    const name = request.body.name
+    const number = request.body.phone
+    console.log('name', request.body.name)
+    console.log('number', request.body.number)
+
+    if(!request || !number){
+        return response.status(400).json({error: 'name or number missing'})
+    } 
+
+    const newPerson =  {
+        name: name, 
+        number: number
+    }
+    Person.findByIdAndUpdate(request.params.id, newPerson, {new: true})
+        .then(updatedNote => response.json(updatedNote))
+        .catch(error => next(error))
+})
+
 const errorHandler = (error, request, response, next) => {
     console.error(error.message)
   
