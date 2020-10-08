@@ -41,7 +41,7 @@ app.get('/api/persons', (request, response) => {
     console.log('get');
     Person.find({}).then(
             persons => {
-                console.log('found');
+                console.log('found', persons);
             return response.json(persons)
         }
         )
