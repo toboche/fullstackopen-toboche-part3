@@ -24,56 +24,46 @@ app.use(
     morgan(':method :url :status :res[content-length] :response-time ms :body')
     )
 
-var persons = [
-    {
-        id: 1,
-        name: "Test 1",
-        number: "1233-233"
-    },
-    {
-        id: 2,
-        name: "Test 2",
-        number: "2223-233"
-    }
-]
-
 app.get('/api/persons', (request, response) => {
-    console.log('get');
     Person.find({}).then(
-            persons => {
-                console.log('found', persons);
-            return response.json(persons)
-        }
-        )
+            persons => response.json(persons))
 })
 
 app.get('/api/info', (request, response) => {
-    response.send("<div>Phonebook contains info for " +
-    persons.length +
-    " people </div>" +
-    "</br>" +
-    new Date().toString()
+    Person.find({}).then(persons => 
+        response.send("<div>Phonebook contains info for " +
+        persons.length +
+        " people </div>" +
+        "</br>" +
+        new Date().toString()
+        )
     )
+    
 })
 
 app.get('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    const person = persons.find(p => p.id === id)
-    if(person){
-        response.json(person)
-    } else {
-        response
-            .status(404)
-            .end()
-    }
+    const id = request.params.id
+    const person = Person.find({_id: id})
+        .then(person => {
+            if(person){
+                response.json(person)
+            } else {
+                response
+                    .status(404)
+                    .end()
+            }
+        })
+    
 })
 
 app.delete('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    console.log(id);
-    persons = persons.filter(p=> p.id !== id)
-    console.log(persons);
-    response.end()
+    const id = request.params.id
+    Person.deleteOne({_id: id})
+    .then(person =>{
+        persons = persons.filter(p=> p.id !== id)
+        console.log(persons);
+        response.end()
+    })
 })
 
 app.post('/api/persons', (request, response) => {
@@ -86,26 +76,26 @@ app.post('/api/persons', (request, response) => {
         return response.status(400).json({error: 'name or number missing'})
     } 
     
-    const isUnique = !persons.map(p=>p.name)
-        .includes(name)
+    // const isUnique = !persons.map(p=>p.name)
+    //     .includes(name)
 
-    if(!isUnique){
-        return response.status(400).json({error: "name not unique"})
-    }
+    // if(!isUnique){
+    //     return response.status(400).json({error: "name not unique"})
+    // }
 
-    const maxId = persons.length > 0
-    ? Math.max(...persons.map(p=>p.id))
-    : 0
-    const id = maxId + 1
+    // const maxId = persons.length > 0
+    // ? Math.max(...persons.map(p=>p.id))
+    // : 0
+    // const id = maxId + 1
 
-    const newPerson = {
-        id: id,
+    const newPerson =  new Person({
         name: name, 
         number: number
-    }
-    persons = persons.concat(newPerson)
+    })
+    newPerson.save()
+    .then(newPerson => response.json(newPerson))
 
-    response.json(newPerson)
+    
 })
 
 const PORT = process.env.PORT
