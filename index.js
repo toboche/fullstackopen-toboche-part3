@@ -3,6 +3,7 @@ const express = require('express')
 const app = express()   
 const morgan = require('morgan')
 const cors = require('cors')
+const Person = require('./models/person')
 
 app.use(express.static('build'))
 app.use(cors())
@@ -37,7 +38,13 @@ var persons = [
 ]
 
 app.get('/api/persons', (request, response) => {
-    response.json(persons)
+    console.log('get');
+    Person.find({}).then(
+            persons => {
+                console.log('found');
+            return response.json(persons)
+        }
+        )
 })
 
 app.get('/api/info', (request, response) => {
@@ -101,5 +108,5 @@ app.post('/api/persons', (request, response) => {
     response.json(newPerson)
 })
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT)
